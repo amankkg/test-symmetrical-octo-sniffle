@@ -20,14 +20,14 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "tsdx lint"
     }
   },
   "prettier": {
     "printWidth": 80,
-    "semi": true,
+    "semi": false,
     "singleQuote": true,
-    "trailingComma": "es5"
+    "trailingComma": "all",
+    "bracketSpacing": false
   },
   "devDependencies": {
     "@types/jest": "^24.0.23",
