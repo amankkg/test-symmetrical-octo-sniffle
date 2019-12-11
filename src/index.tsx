@@ -1,39 +1,27 @@
 // import * as React from 'react';
 
-// /* default, i.e. min-width < 480px */             /*  mobile, protrait */
-// @custom-media --viewport-4 (min-width: 480px);    /*  mobile, landscape */
-// @custom-media --viewport-7 (min-width: 768px);    /*  tablet, portrait */
-// @custom-media --viewport-9 (min-width: 992px);    /*  tablet, landscape */
-// @custom-media --viewport-12 (min-width: 1200px);  /*  desktop */
+type ViewportOption = JSX.Element | [string, JSX.Element]
 
-/* MEDIA QUERY BREAKPOINT */
-/*
-  type CssRule = 'min-width' | 'max-width' | 'min-height' | 'max-height'  // TODO: should be easier :)
+function useResponsive(argz: Array<ViewportOption>): JSX.Element {
+  // TODO: add more type-level so it looks very elite
+  // TODO: refactor to support more overloads, now there are too many IF statements
+  // TODO: support different types of CSS Media Query (object, React-like JS object)
+  // TODO: add window resize listener?
+  if (argz.length > 2) {
+    const mq = 'length' in argz[2] ? argz[2][0] : '(min-width: 768px)'
 
-  type Breakpoint = string // string here must be a valid CSS Media Query
-    | {[CssRule]: string} // string here must contain units, e.g. 'px'
-    | React.CSSProperties
-*/
+    if (window.matchMedia(mq).matches)
+      return 'length' in argz[2] ? argz[2][1] : argz[2]
+  }
 
-/* VIEWPORT */
-/*
-  type MobilePortrait = JSX.Element | [Breakpoint, JSX.Element]
-  type MobileLandscape = JSX.Element | [Breakpoint, JSX.Element]
-  type Mobile = MobilePortrait | MobileLandscape
+  if (argz.length > 1) {
+    const mq = 'length' in argz[1] ? argz[1][0] : '(min-width: 480px)'
 
-  type TabletPortrait = JSX.Element | [Breakpoint, JSX.Element]
-  type TabletLandscape = JSX.Element | [Breakpoint, JSX.Element]
-  type Tablet = TabletPortrait | TabletLandscape
+    if (window.matchMedia(mq).matches)
+      return 'length' in argz[1] ? argz[1][1] : argz[1]
+  }
 
-  type Desktop = JSX.Element | [Breakpoint, JSX.Element]
-*/
-
-function useResponsive(argz: JSX.Element[]): JSX.Element {
-  if (argz.length === 1) return argz[0]
-
-  if (window.matchMedia('(min-width: 480px)').matches) return argz[1]
-
-  return argz[0]
+  return 'length' in argz[0] ? argz[0][1] : argz[0]
 }
 
 export {useResponsive}

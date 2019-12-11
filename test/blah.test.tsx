@@ -2,6 +2,8 @@ import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 // import {useResponsive} from '../src'
 
+// TODO: add examples from readme as unit tests (+RTL/enzyme?), or add storybook?
+
 /* HOOK OVERLOADS */
 
 // without any responsiveness (included this due to React Hooks issues with conditionals)
