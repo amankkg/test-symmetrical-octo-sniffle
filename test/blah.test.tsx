@@ -1,6 +1,6 @@
-import * as React from 'react';
-import * as ReactDOM from 'react-dom';
-import {useResponsive} from '../src';
+import * as React from 'react'
+import * as ReactDOM from 'react-dom'
+// import {useResponsive} from '../src'
 
 /* HOOK OVERLOADS */
 
@@ -32,8 +32,8 @@ import {useResponsive} from '../src';
 
 describe('it', () => {
   it('renders without crashing', () => {
-    const div = document.createElement('div');
-    ReactDOM.render(<div />, div);
-    ReactDOM.unmountComponentAtNode(div);
-  });
-});
+    const div = document.createElement('div')
+    ReactDOM.render(<div />, div)
+    ReactDOM.unmountComponentAtNode(div)
+  })
+})

@@ -28,12 +28,12 @@
   type Desktop = JSX.Element | [Breakpoint, JSX.Element]
 */
 
-function useResponsive(argz: JSX.Element[]) : JSX.Element {
+function useResponsive(argz: JSX.Element[]): JSX.Element {
   if (argz.length === 1) return argz[0]
 
   if (window.matchMedia('(min-width: 480px)').matches) return argz[1]
 
   return argz[0]
-};
+}
 
 export {useResponsive}
