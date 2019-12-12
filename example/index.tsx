@@ -1,7 +1,8 @@
-import 'react-app-polyfill/ie11';
-import * as React from 'react';
-import * as ReactDOM from 'react-dom';
-import {useResponsive} from '../src';
+import 'react-app-polyfill/ie11'
+import * as React from 'react'
+import * as ReactDOM from 'react-dom'
+
+import {useResponsive} from '../src'
 
 const App = () => {
   // TODO: add very impressive demo
@@ -19,7 +20,7 @@ const App = () => {
       {content2}
       {content3}
     </div>
-  );
-};
+  )
+}
 
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render(<App />, document.getElementById('root'))
