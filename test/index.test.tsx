@@ -1,6 +1,6 @@
 import * as React from 'react'
-import * as ReactDOM from 'react-dom'
-// import {useResponsive} from '../src'
+
+import {useResponsive} from '../src'
 
 // TODO: add examples from readme as unit tests (+RTL/enzyme?), or add storybook?
 
@@ -32,10 +32,27 @@ import * as ReactDOM from 'react-dom'
 
 // function useResponsive([mobile, mobileLandscape, tablet, tabletLandscape, desktop, hiRes]) : ReactElement
 
-describe('it', () => {
-  it('renders without crashing', () => {
-    const div = document.createElement('div')
-    ReactDOM.render(<div />, div)
-    ReactDOM.unmountComponentAtNode(div)
+describe('useResponsive', () => {
+  const initial = <p>initial</p>
+
+  it('returns default value for single-item array', () => {
+    const actual = useResponsive([initial])
+
+    expect(actual).toBe(initial)
+  })
+
+  it('returns default value for single-item array even if media query not matched', () => {
+    const breakpoint = '(min-width: 768px)'
+
+    // eslint-disable-next-line no-native-reassign
+    window = Object.assign(window, {
+      matchMedia: (x: string) => ({matches: x === breakpoint}),
+    })
+
+    expect(window.matchMedia(breakpoint).matches).toBe(true)
+
+    const actual = useResponsive([[breakpoint, initial]])
+
+    expect(actual).toBe(initial)
   })
 })
