@@ -1,46 +1,62 @@
 import * as breakpoints from './default-breakpoints'
+import {stringifyMediaQuery} from './media-query-kit'
+import {MissingBreakpoint} from './missing-breakpoint-error'
 
-type CustomQueryOption = readonly [string, JSX.Element]
+type MediaQueryBreakpoint = string | {[key: string]: string}
+type CustomQueryOption = readonly [MediaQueryBreakpoint, JSX.Element]
+type StringQueryOption = readonly [string, JSX.Element]
 
 function useResponsive(
   options: Array<JSX.Element | CustomQueryOption>,
 ): JSX.Element {
   // TODO: add more type-level so it looks very elite
   // TODO: refactor to support more overloads, now there are too many IF statements
-  // TODO: support different types of CSS Media Query (object, React-like JS object)
-  // TODO: add window resize listener?
-  if (options.length > 4) {
-    const mq = Array.isArray(options[4])
-      ? options[4][0]
-      : breakpoints.viewport12
 
-    if (window.matchMedia(mq).matches)
-      return Array.isArray(options[4]) ? options[4][1] : options[4]
+  if (options.length === 0) throw new Error('TODO: options cannot be empty')
+  if (options.some(() => false)) throw new Error('TODO: non-custom query option cannot come after custom query one')
+
+  let sureOptionsDecreasing: Array<StringQueryOption>
+
+  try {
+    sureOptionsDecreasing = options.map(monotonizeOption).reverse()
+  } catch (error) {
+    if (error instanceof MissingBreakpoint) throw new Error('TODO: additional options must have custom query')
+
+    throw error
   }
 
-  if (options.length > 3) {
-    const mq = Array.isArray(options[3]) ? options[3][0] : breakpoints.viewport9
+  // TODO: fix typescript
+  const fallback = sureOptionsDecreasing.pop()[1]
 
-    if (window.matchMedia(mq).matches)
-      return Array.isArray(options[3]) ? options[3][1] : options[3]
+  for (const [mediaQuery, element] of sureOptionsDecreasing) {
+    if (window.matchMedia(mediaQuery)) return element
   }
 
-  if (options.length > 2) {
-    const mq = Array.isArray(options[2]) ? options[2][0] : breakpoints.viewport7
+  return fallback
+}
 
-    if (window.matchMedia(mq).matches)
-      return Array.isArray(options[2]) ? options[2][1] : options[2]
+const defaultBreakpoints = new Map()
+  .set(1, breakpoints.viewport4)
+  .set(2, breakpoints.viewport7)
+  .set(3, breakpoints.viewport9)
+  .set(4, breakpoints.viewport12)
+
+function monotonizeOption(ambiguousOption: JSX.Element | CustomQueryOption, index: number): StringQueryOption {
+  if (isCustomQueryOption(ambiguousOption)) {
+    const [breakpoint, element] = ambiguousOption
+
+    return [stringifyMediaQuery(breakpoint), element]
   }
 
-  if (options.length > 1) {
-    const mq = Array.isArray(options[1]) ? options[1][0] : breakpoints.viewport4
+  if (index === 0) return ['noop', ambiguousOption]
 
-    if (window.matchMedia(mq).matches)
-      return Array.isArray(options[1]) ? options[1][1] : options[1]
-  }
+  if (defaultBreakpoints.has(index)) return [defaultBreakpoints.get(index), ambiguousOption]
+  
+  throw new MissingBreakpoint(ambiguousOption)
+}
 
-  // TODO: disallow first entry to be an array?
-  return Array.isArray(options[0]) ? options[0][1] : options[0]
+function isCustomQueryOption(value: any) : value is CustomQueryOption {
+  return Array.isArray(value)
 }
 
 export {useResponsive}
