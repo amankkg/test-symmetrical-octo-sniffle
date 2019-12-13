@@ -1,36 +1,41 @@
+/* eslint-disable no-native-reassign */
+
 import * as React from 'react'
 
 import {useResponsive} from '../src'
+import * as breakpoints from '../src/default-breakpoints'
 
-// TODO: add examples from readme as unit tests (+RTL/enzyme?), or add storybook?
+// ~~~ MONKEY PATCHING START 🙈🙊🙉 ~~~
+// TODO: get rid of following mocking, it makes us to rely on internals of target function (white-box)
+// jsdom does not implement `matchMedia`, so let's just patch it for our own needs
+// ideally, instead of this one should just set window's height and width and just use `matchMedia` API
+/**
+ * Never match any media query
+ */
+function injectSupportedMediaQueryBreakpoint(): void
 
-/* HOOK OVERLOADS */
+/**
+ * Match a given media query only
+ * @param {string} breakpoint - media query string to match
+ */
+function injectSupportedMediaQueryBreakpoint(breakpoint: string): void
 
-// without any responsiveness (included this due to React Hooks issues with conditionals)
-// function useResponsive([ReactElement]) : ReactElement
+function injectSupportedMediaQueryBreakpoint(breakpoint?: string) {
+  window = Object.assign(window, {
+    // Symbol is used to guarantee non-matching behavior
+    matchMedia: (x: string) => ({matches: x === (breakpoint ?? Symbol())}),
+  })
+}
 
-// mobile + tablet/desktop
-// function useResponsive([Mobile, Tablet | Desktop]) : ReactElement
+const defaultMatchMedia = window.matchMedia // undefined actually
 
-// mobile + tablet + desktop
-// function useResponsive([Mobile, Tablet, Desktop]) : ReactElement
+const resetToDefaults = () => {
+  window = Object.assign(window, {matchMedia: defaultMatchMedia})
+}
 
-// mobile portrait & landscape + tablet portrait & landscape + desktop
-// function useResponsive([MobilePortrait, MobileLandscape, TabletPortrait, TabletLandscape, Desktop]) : ReactElement
+afterEach(resetToDefaults)
 
-// custom media query example
-// const mobile = <>mobile portrait</>
-// ... as a string
-// const mobileLandscape = ['(min-width: 481px) and (max-width: 767px)', <>mobile landscape</>]
-// ... as an object of CSS rules
-// const tablet = [{'min-width': '768px', 'max-width': '1024px'}, <>tablet portrait</>]
-// ... as an object of React-like CSS rules
-// const tabletLandscape = [{minWidth: '768px', maxWidth: '1024px', orientation: 'landscape'}, <>tablet landscape</>]
-// const desktop = ['(min-width: 1025px) and (max-width: 1280px)', <>desktop</>]
-// ... for hi-res desktop
-// const hiRes = ['(min-width: 1281px)', <>hi-res desktop</>]
-
-// function useResponsive([mobile, mobileLandscape, tablet, tabletLandscape, desktop, hiRes]) : ReactElement
+// ~~~ MONKEY PATCHING END 🙈🙊🙉 ~~~
 
 describe('useResponsive', () => {
   const initial = <p>initial</p>
@@ -44,15 +49,131 @@ describe('useResponsive', () => {
   it('returns default value for single-item array even if media query not matched', () => {
     const breakpoint = '(min-width: 768px)'
 
-    // eslint-disable-next-line no-native-reassign
-    window = Object.assign(window, {
-      matchMedia: (x: string) => ({matches: x === breakpoint}),
-    })
+    injectSupportedMediaQueryBreakpoint('(min-width: 768px)')
 
     expect(window.matchMedia(breakpoint).matches).toBe(true)
 
     const actual = useResponsive([[breakpoint, initial]])
 
     expect(actual).toBe(initial)
+  })
+
+  describe('handling of default media queries', () => {
+    const cases = [
+      <p>mobile portrait</p>,
+      <p>mobile landscape</p>,
+      <p>tablet portrait</p>,
+      <p>tablet landscape</p>,
+      <p>desktop</p>,
+    ]
+
+    it(`should fallback to mobile portrait (i.e. if a viewport is smaller than ${breakpoints.viewport4})`, () => {
+      injectSupportedMediaQueryBreakpoint()
+
+      const actual = useResponsive(cases)
+
+      expect(actual).toMatchInlineSnapshot(`
+        <p>
+          mobile portrait
+        </p>
+      `)
+    })
+
+    it(`should detect viewport ${breakpoints.viewport4} as mobile landscape`, () => {
+      injectSupportedMediaQueryBreakpoint(breakpoints.viewport4)
+
+      const actual = useResponsive(cases)
+
+      expect(actual).toMatchInlineSnapshot(`
+        <p>
+          mobile landscape
+        </p>
+      `)
+    })
+
+    it(`should detect viewport ${breakpoints.viewport7} as tablet portrait`, () => {
+      injectSupportedMediaQueryBreakpoint(breakpoints.viewport7)
+
+      const actual = useResponsive(cases)
+
+      expect(actual).toMatchInlineSnapshot(`
+        <p>
+          tablet portrait
+        </p>
+      `)
+    })
+
+    it(`should detect viewport ${breakpoints.viewport9} as tablet landscape`, () => {
+      injectSupportedMediaQueryBreakpoint(breakpoints.viewport9)
+
+      const actual = useResponsive(cases)
+
+      expect(actual).toMatchInlineSnapshot(`
+        <p>
+          tablet landscape
+        </p>
+      `)
+    })
+
+    it(`should detect viewport ${breakpoints.viewport12} as desktop`, () => {
+      injectSupportedMediaQueryBreakpoint(breakpoints.viewport12)
+
+      const actual = useResponsive(cases)
+
+      expect(actual).toMatchInlineSnapshot(`
+        <p>
+          desktop
+        </p>
+      `)
+    })
+  })
+
+  describe('handling of custom breakpoints', () => {
+    const hiResCustomOption = [
+      '(min-width: 1280px)',
+      <p>hi-res desktop</p>,
+    ] as const
+
+    const cases = [
+      <p>mobile portrait</p>,
+      <p>mobile landscape</p>,
+      hiResCustomOption,
+    ]
+
+    it('should keep falling back to mobile portrait', () => {
+      injectSupportedMediaQueryBreakpoint()
+
+      const actual = useResponsive(cases)
+
+      expect(actual).toMatchInlineSnapshot(`
+        <p>
+          mobile portrait
+        </p>
+      `)
+    })
+
+    it(`should fallback to default media query breakpoint (in this case: mobile landscape / ${breakpoints.viewport4}) if there is no custom value`, () => {
+      injectSupportedMediaQueryBreakpoint(breakpoints.viewport4)
+
+      const actual = useResponsive(cases)
+
+      expect(actual).toMatchInlineSnapshot(`
+          <p>
+            mobile landscape
+          </p>
+        `)
+    })
+
+    it('should match custom media query breakpoint for latter argument entries', () => {
+      injectSupportedMediaQueryBreakpoint(hiResCustomOption[0])
+
+      const actual = useResponsive(cases)
+
+      expect(actual).toMatchInlineSnapshot(`
+        <p>
+          hi-res desktop
+        </p>
+      `)
+    })
   })
 })

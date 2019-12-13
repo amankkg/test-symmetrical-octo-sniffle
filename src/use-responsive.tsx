@@ -1,27 +1,46 @@
-// import * as React from 'react';
+import * as breakpoints from './default-breakpoints'
 
-type ViewportOption = JSX.Element | [string, JSX.Element]
+type CustomQueryOption = readonly [string, JSX.Element]
 
-function useResponsive(argz: Array<ViewportOption>): JSX.Element {
+function useResponsive(
+  options: Array<JSX.Element | CustomQueryOption>,
+): JSX.Element {
   // TODO: add more type-level so it looks very elite
   // TODO: refactor to support more overloads, now there are too many IF statements
   // TODO: support different types of CSS Media Query (object, React-like JS object)
   // TODO: add window resize listener?
-  if (argz.length > 2) {
-    const mq = 'length' in argz[2] ? argz[2][0] : '(min-width: 768px)'
+  if (options.length > 4) {
+    const mq = Array.isArray(options[4])
+      ? options[4][0]
+      : breakpoints.viewport12
 
     if (window.matchMedia(mq).matches)
-      return 'length' in argz[2] ? argz[2][1] : argz[2]
+      return Array.isArray(options[4]) ? options[4][1] : options[4]
   }
 
-  if (argz.length > 1) {
-    const mq = 'length' in argz[1] ? argz[1][0] : '(min-width: 480px)'
+  if (options.length > 3) {
+    const mq = Array.isArray(options[3]) ? options[3][0] : breakpoints.viewport9
 
     if (window.matchMedia(mq).matches)
-      return 'length' in argz[1] ? argz[1][1] : argz[1]
+      return Array.isArray(options[3]) ? options[3][1] : options[3]
   }
 
-  return 'length' in argz[0] ? argz[0][1] : argz[0]
+  if (options.length > 2) {
+    const mq = Array.isArray(options[2]) ? options[2][0] : breakpoints.viewport7
+
+    if (window.matchMedia(mq).matches)
+      return Array.isArray(options[2]) ? options[2][1] : options[2]
+  }
+
+  if (options.length > 1) {
+    const mq = Array.isArray(options[1]) ? options[1][0] : breakpoints.viewport4
+
+    if (window.matchMedia(mq).matches)
+      return Array.isArray(options[1]) ? options[1][1] : options[1]
+  }
+
+  // TODO: disallow first entry to be an array?
+  return Array.isArray(options[0]) ? options[0][1] : options[0]
 }
 
 export {useResponsive}
