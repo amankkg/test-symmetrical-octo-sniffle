@@ -6,19 +6,27 @@ import {useResponsive} from '../src'
 
 const App = () => {
   // TODO: add very impressive demo
-  const content1 = useResponsive([<p>mobile</p>, <p>non-mobile</p>])
-  const content2 = useResponsive([<p>mobile</p>, <p>tablet</p>, <p>desktop</p>])
-  const content3 = useResponsive([
-    ['not needed?', <p>less than 450px</p>],
-    ['(min-width: 450px)', <p>more than 450px</p>],
-    ['(min-width: 750px)', <p>more than 750px</p>],
+  const [width, setWidth] = React.useState(window.innerWidth)
+  
+  React.useEffect(() => {
+    const interval = setInterval(() => setWidth(window.innerWidth), 200)
+
+    return () => clearInterval(interval)
+  }, [])
+
+  const content = useResponsive([
+    <p>default:     less than 480px</p>,
+    <p>viewport4:   (min-width: 480px)</p>,
+    <p>viewport7:   (min-width: 768px)</p>,
+    <p>viewport9:   (min-width: 992px)</p>,
+    <p>viewport12:  (min-width: 1200px)</p>,
   ])
 
   return (
     <div>
-      {content1}
-      {content2}
-      {content3}
+      <p>Resize a window to see changes</p>
+      <p>width: {width}</p>
+      {content}
     </div>
   )
 }

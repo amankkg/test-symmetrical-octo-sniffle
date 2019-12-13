@@ -25,59 +25,44 @@ You should be able to read TypeScript.
 
 ### type alias
 ```tsx
-/* MEDIA QUERY BREAKPOINT */
 
-type CssRule = 'min-width' | 'max-width' | 'min-height' | 'max-height' | ... // TODO: should be easier :)
+type MediaQueryBreakpoint = string | {[key: string]: string} // note: object API is not implemented yet
+type CustomQueryOption<T> = [MediaQueryBreakpoint, T] // usually, T is JSX.Element
+type Option<T> = T | CustomQueryOption<T>
 
-type Breakpoint = string // string here must be a valid CSS Media Query
-  | {[CssRule]: string} // string here must contain units, e.g. 'px'
-
-
-/* VIEWPORT */
-
-type MobilePortrait = ReactElement | [Breakpoint, ReactElement]
-type MobileLandscape = ReactElement | [Breakpoint, ReactElement]
-type Mobile = MobilePortrait | MobileLandscape
-
-type TabletPortrait = ReactElement | [Breakpoint, ReactElement]
-type TabletLandscape = ReactElement | [Breakpoint, ReactElement]
-type Tablet = TabletPortrait | TabletLandscape
-
-type Desktop = ReactElement | [Breakpoint, ReactElement]
+function useResponsive<T>(options: Option<T>[]): T
 ```
 
 ### usage
 ```tsx
-/* HOOK OVERLOADS */
+/* HOOK OVERLOADS WITH EXAMPLES */
 
 // without any responsiveness (included this due to React Hooks issues with conditionals)
-function useResponsive([ReactElement]) : ReactElement
+// if there is a custom query it will be ignored
+useResponsive([fallback])
 
 // mobile + tablet/desktop
-function useResponsive([Mobile, Tablet | Desktop]) : ReactElement
+useResponsive([fallback, mobile, tabletOrDesktop])
 
 // mobile + tablet + desktop
-function useResponsive([Mobile, Tablet, Desktop]) : ReactElement
+useResponsive([fallback, mobile, tablet, desktop])
 
 // mobile portrait & landscape + tablet portrait & landscape + desktop
-function useResponsive([MobilePortrait, MobileLandscape, TabletPortrait, TabletLandscape, Desktop]) : ReactElement
+useResponsive([mobilePortrait, mobileLandscape, tabletPortrait, tabletLandscape, desktop])
+
 
 // custom media query example
 const mobile = <>mobile portrait</>
-// ... as a string
-const mobileLandscape = ['(min-width: 481px) and (max-width: 767px)', <>mobile landscape</>]
-// ... as an object of CSS rules
-const tablet = [{'min-width': '768px', 'max-width': '1024px'}, <>tablet portrait</>]
-// ... as an object of React-like CSS rules
-const tabletLandscape = [{minWidth: '768px', maxWidth: '1024px', orientation: 'landscape'}, <>tablet landscape</>]
+const mobileLandscape = ['(min-width: 481px) and (max-width: 767px)', <>mobile landscape</>] // ... as a string, *starting from this all following options in array must contain custom query (or first 5 should fallback to default queries?)
+const tablet = [{'min-width': '768px', 'max-width': '1024px'}, <>tablet portrait</>] // ... as an object of CSS rules
+const tabletLandscape = [{minWidth: '768px', maxWidth: '1024px', orientation: 'landscape'}, <>tablet landscape</>] // ... as an object of React-like CSS rules
 const desktop = ['(min-width: 1025px) and (max-width: 1280px)', <>desktop</>]
-// ... for hi-res desktop
-const hiRes = ['(min-width: 1281px)', <>hi-res desktop</>]
+const hiRes = ['(min-width: 1281px)', <>hi-res desktop</>] // ... for hi-res desktop, *since this option is beyond default media queries it has to contain a custom query
 
-function useResponsive([mobile, mobileLandscape, tablet, tabletLandscape, desktop, hiRes]) : ReactElement
+useResponsive([mobile, mobileLandscape, tablet, tabletLandscape, desktop, hiRes])
 ```
 
-> Note: arguments in `useResponsive` hook should be ordered by screen size ascending because we match Media Queries in opposite order (i.e. larger resolutions first)
+> Note: a value of the latest matching media query will be returned. And, if there are no matches at all then the first one is returned
 
 ---
 Project was bootstrapped by [tsdx](https://github.com/jaredpalmer/tsdx)
