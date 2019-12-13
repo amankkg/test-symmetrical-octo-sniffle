@@ -13,14 +13,18 @@ function useResponsive(
   // TODO: refactor to support more overloads, now there are too many IF statements
 
   if (options.length === 0) throw new Error('TODO: options cannot be empty')
-  if (options.some(() => false)) throw new Error('TODO: non-custom query option cannot come after custom query one')
+  if (options.some(() => false))
+    throw new Error(
+      'TODO: non-custom query option cannot come after custom query one',
+    )
 
   let sureOptionsDecreasing: Array<StringQueryOption>
 
   try {
     sureOptionsDecreasing = options.map(monotonizeOption).reverse()
   } catch (error) {
-    if (error instanceof MissingBreakpoint) throw new Error('TODO: additional options must have custom query')
+    if (error instanceof MissingBreakpoint)
+      throw new Error('TODO: additional options must have custom query')
 
     throw error
   }
@@ -41,7 +45,10 @@ const defaultBreakpoints = new Map()
   .set(3, breakpoints.viewport9)
   .set(4, breakpoints.viewport12)
 
-function monotonizeOption(ambiguousOption: JSX.Element | CustomQueryOption, index: number): StringQueryOption {
+function monotonizeOption(
+  ambiguousOption: JSX.Element | CustomQueryOption,
+  index: number,
+): StringQueryOption {
   if (isCustomQueryOption(ambiguousOption)) {
     const [breakpoint, element] = ambiguousOption
 
@@ -50,12 +57,13 @@ function monotonizeOption(ambiguousOption: JSX.Element | CustomQueryOption, inde
 
   if (index === 0) return ['noop', ambiguousOption]
 
-  if (defaultBreakpoints.has(index)) return [defaultBreakpoints.get(index), ambiguousOption]
-  
+  if (defaultBreakpoints.has(index))
+    return [defaultBreakpoints.get(index), ambiguousOption]
+
   throw new MissingBreakpoint(ambiguousOption)
 }
 
-function isCustomQueryOption(value: any) : value is CustomQueryOption {
+function isCustomQueryOption(value: any): value is CustomQueryOption {
   return Array.isArray(value)
 }
 
