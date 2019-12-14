@@ -2,14 +2,12 @@ import * as breakpoints from './default-breakpoints'
 import {stringifyMediaQuery} from './media-query-kit'
 
 type MediaQueryBreakpoint = string | {[key: string]: string}
-type CustomQueryOption = readonly [MediaQueryBreakpoint, JSX.Element]
-type StringQueryOption = readonly [string, JSX.Element]
+type CustomQueryOption<T> = readonly [MediaQueryBreakpoint, T]
+type StringQueryOption<T> = readonly [string, T]
+type OptionsArray<T> = Array<T | CustomQueryOption<T>>
 
 // TODO: add more type-level stuff, overload typedefs, etc. so it looks strict and very elite
-// TODO: add generics, since it has no deal with actual return type, we just... return it
-function useResponsive(
-  options: Array<JSX.Element | CustomQueryOption>,
-): JSX.Element {
+function useResponsive<T>(options: OptionsArray<T>): T {
   if (options.length === 0)
     throw new Error('TODO: yell that options cannot be empty')
 
@@ -43,10 +41,10 @@ const defaultBreakpoints = new Map()
   .set(3, breakpoints.viewport9)
   .set(4, breakpoints.viewport12)
 
-function monotonizeOption(
-  ambiguousOption: JSX.Element | CustomQueryOption,
+function monotonizeOption<T>(
+  ambiguousOption: T | CustomQueryOption<T>,
   index: number,
-): StringQueryOption {
+): StringQueryOption<T> {
   if (isCustomQueryOption(ambiguousOption)) {
     const [breakpoint, element] = ambiguousOption
 
@@ -58,7 +56,7 @@ function monotonizeOption(
   return [breakpoint, ambiguousOption]
 }
 
-function isCustomQueryOption(value: any): value is CustomQueryOption {
+function isCustomQueryOption<T>(value: any): value is CustomQueryOption<T> {
   return Array.isArray(value)
 }
 

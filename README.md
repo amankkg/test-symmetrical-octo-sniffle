@@ -28,9 +28,8 @@ You should be able to read TypeScript.
 
 type MediaQueryBreakpoint = string | {[key: string]: string} // note: object API is not implemented yet
 type CustomQueryOption<T> = [MediaQueryBreakpoint, T] // usually, T is JSX.Element
-type Option<T> = T | CustomQueryOption<T>
 
-function useResponsive<T>(options: Option<T>[]): T
+function useResponsive<T>(options: Array<T | CustomQueryOption<T>>): T
 ```
 
 ### usage
