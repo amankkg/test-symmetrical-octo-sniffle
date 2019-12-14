@@ -14,8 +14,7 @@ const defaultBreakpoints = new Map()
 
 // TODO: add more type-level stuff, overload typedefs, etc. so it looks strict and very elite
 function useResponsive<T>(options: OptionsArray<T>): T {
-  if (options.length === 0)
-    throw new Error('Options cannot be empty.')
+  if (options.length === 0) throw new Error('Options cannot be empty.')
 
   if (options.some((x, i) => i > 4 && !isCustomQueryOption(x))) {
     throw new Error(
