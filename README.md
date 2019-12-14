@@ -12,7 +12,7 @@ Here comes `useResponsive` hook with default media query breakpoints, which are 
 Default media queries are these:
 
 ```css
-/* default, i.e. min-width < 480px */             /*  mobile, protrait */
+/* default, i.e. (min-width: 0) */                /*  mobile, protrait */
 @custom-media --viewport-4 (min-width: 480px);    /*  mobile, landscape */
 @custom-media --viewport-7 (min-width: 768px);    /*  tablet, portrait */
 @custom-media --viewport-9 (min-width: 992px);    /*  tablet, landscape */
@@ -62,6 +62,7 @@ useResponsive([mobile, mobileLandscape, tablet, tabletLandscape, desktop, hiRes]
 ```
 
 > Note: a value of the latest matching media query will be returned. And, if there are no matches at all then the first one is returned
+> Note: any option beyond first 5 entries must contain media query value
 
 ---
 Project was bootstrapped by [tsdx](https://github.com/jaredpalmer/tsdx)

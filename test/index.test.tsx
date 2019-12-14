@@ -176,4 +176,14 @@ describe('useResponsive', () => {
       `)
     })
   })
+
+  it('should throw if options array is empty', () => {
+    expect(() => useResponsive([])).toThrowError('Options cannot be empty.')
+  })
+
+  it('should throw if extra options do not provide media queries', () => {
+    const options = [0,1,2,3,4,5,6]
+
+    expect(() => useResponsive(options)).toThrowError('Options beyond first 5 entries must contain a custom query definition.')
+  })
 })

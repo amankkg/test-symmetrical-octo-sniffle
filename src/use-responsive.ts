@@ -6,20 +6,20 @@ type CustomQueryOption<T> = readonly [MediaQueryBreakpoint, T]
 type StringQueryOption<T> = readonly [string, T]
 type OptionsArray<T> = Array<T | CustomQueryOption<T>>
 
+const defaultBreakpoints = new Map()
+  .set(1, breakpoints.viewport4)
+  .set(2, breakpoints.viewport7)
+  .set(3, breakpoints.viewport9)
+  .set(4, breakpoints.viewport12)
+
 // TODO: add more type-level stuff, overload typedefs, etc. so it looks strict and very elite
 function useResponsive<T>(options: OptionsArray<T>): T {
   if (options.length === 0)
-    throw new Error('TODO: yell that options cannot be empty')
+    throw new Error('Options cannot be empty.')
 
-  if (options.some(() => false)) {
+  if (options.some((x, i) => i > 4 && !isCustomQueryOption(x))) {
     throw new Error(
-      'TODO: yell that non-custom query option cannot come after custom query one',
-    )
-  }
-
-  if (options.some(() => false)) {
-    throw new Error(
-      'TODO: yell all additional options (i.e. beyond first 5 arguments) must have custom query',
+      'Options beyond first 5 entries must contain a custom query definition.',
     )
   }
 
@@ -34,12 +34,6 @@ function useResponsive<T>(options: OptionsArray<T>): T {
 
   return matched[0]
 }
-
-const defaultBreakpoints = new Map()
-  .set(1, breakpoints.viewport4)
-  .set(2, breakpoints.viewport7)
-  .set(3, breakpoints.viewport9)
-  .set(4, breakpoints.viewport12)
 
 function monotonizeOption<T>(
   ambiguousOption: T | CustomQueryOption<T>,
