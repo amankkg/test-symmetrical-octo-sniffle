@@ -7,13 +7,6 @@ type CustomOption<T> = readonly [MediaQuery, T]
 type StringQueryOption<T> = readonly [string, T]
 type OptionsArray<T> = Array<T | CustomOption<T>>
 
-const defaultBreakpoints = new Map()
-  .set(1, breakpoints.viewport4)
-  .set(2, breakpoints.viewport7)
-  .set(3, breakpoints.viewport9)
-  .set(4, breakpoints.viewport12)
-
-// TODO: add more type-level stuff, overload typedefs, etc. so it looks strict and very elite
 function useResponsive<T>(options: OptionsArray<T>): T {
   invariant(options.length > 0, 'Options cannot be empty.')
 
@@ -33,6 +26,12 @@ function useResponsive<T>(options: OptionsArray<T>): T {
 
   return matched[0]
 }
+
+const defaultBreakpoints = new Map()
+  .set(1, breakpoints.viewport4)
+  .set(2, breakpoints.viewport7)
+  .set(3, breakpoints.viewport9)
+  .set(4, breakpoints.viewport12)
 
 function monotonizeOption<T>(
   ambiguousOption: T | CustomOption<T>,
