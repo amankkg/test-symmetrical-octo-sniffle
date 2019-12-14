@@ -1,10 +1,10 @@
 import * as breakpoints from './default-breakpoints'
 import {stringifyMediaQuery} from './media-query-kit'
 
-type MediaQueryBreakpoint = string | {[key: string]: string}
-type CustomQueryOption<T> = readonly [MediaQueryBreakpoint, T]
+type MediaQuery = string | string[] | {[key: string]: string}
+type CustomOption<T> = readonly [MediaQuery, T]
 type StringQueryOption<T> = readonly [string, T]
-type OptionsArray<T> = Array<T | CustomQueryOption<T>>
+type OptionsArray<T> = Array<T | CustomOption<T>>
 
 const defaultBreakpoints = new Map()
   .set(1, breakpoints.viewport4)
@@ -35,7 +35,7 @@ function useResponsive<T>(options: OptionsArray<T>): T {
 }
 
 function monotonizeOption<T>(
-  ambiguousOption: T | CustomQueryOption<T>,
+  ambiguousOption: T | CustomOption<T>,
   index: number,
 ): StringQueryOption<T> {
   if (isCustomQueryOption(ambiguousOption)) {
@@ -49,7 +49,7 @@ function monotonizeOption<T>(
   return [breakpoint, ambiguousOption]
 }
 
-function isCustomQueryOption<T>(value: any): value is CustomQueryOption<T> {
+function isCustomQueryOption<T>(value: any): value is CustomOption<T> {
   return Array.isArray(value)
 }
 

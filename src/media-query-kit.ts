@@ -1,6 +1,15 @@
 export function stringifyMediaQuery(
-  rawBreakpoint: string | {[key: string]: string},
+  raw: string | string[] | {[key: string]: string},
 ): string {
-  // TODO: support different types of CSS Media Query (object, React-like JS object)
-  return rawBreakpoint.toString()
+  if (typeof raw === 'string') return raw
+
+  if (Array.isArray(raw)) return raw.join(', ')
+
+  return Object.entries(raw)
+    .map(([key, value]) => `(${toKebabCase(key)}: ${value})`)
+    .join(', ')
+}
+
+function toKebabCase(value: string) {
+  return value.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase()
 }
