@@ -1,5 +1,6 @@
 import * as breakpoints from './default-breakpoints'
 import {stringifyMediaQuery} from './media-query-kit'
+import {invariant} from './invariant'
 
 type MediaQuery = string | string[] | {[key: string]: string}
 type CustomOption<T> = readonly [MediaQuery, T]
@@ -14,13 +15,12 @@ const defaultBreakpoints = new Map()
 
 // TODO: add more type-level stuff, overload typedefs, etc. so it looks strict and very elite
 function useResponsive<T>(options: OptionsArray<T>): T {
-  if (options.length === 0) throw new Error('Options cannot be empty.')
+  invariant(options.length > 0, 'Options cannot be empty.')
 
-  if (options.some((x, i) => i > 4 && !isCustomQueryOption(x))) {
-    throw new Error(
-      'Options beyond first 5 entries must contain a custom query definition.',
-    )
-  }
+  invariant(
+    options.every((x, i) => i < 5 || isCustomQueryOption(x)),
+    'Options beyond first 5 entries must contain a custom query definition.',
+  )
 
   const [[, defaultElement], ...customQueryOptions] = options.map(
     monotonizeOption,
